@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoNerve – AI-Powered Environmental Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+    --green:#1db954;--green-glow:rgba(29,185,84,0.4);
+    --text:#fff;--text-sec:rgba(255,255,255,0.65);
+    --glass:rgba(255,255,255,0.07);--glass-border:rgba(255,255,255,0.12);
+    --glass-strong:rgba(255,255,255,0.12);--glass-border-strong:rgba(255,255,255,0.2);
+    --shadow:0 8px 32px rgba(0,0,0,0.18);
+    --radius:22px;--transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:#050e08;color:var(--text);overflow-x:hidden;min-height:100vh}
+
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;z-index:-3;background:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80') center/cover no-repeat fixed}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;background:linear-gradient(180deg,rgba(5,14,8,0.78) 0%,rgba(8,24,14,0.72) 30%,rgba(5,18,10,0.78) 60%,rgba(3,10,5,0.88) 100%)}
+.bg-r{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 20% 30%,rgba(29,185,84,0.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 60%,rgba(15,48,87,0.05) 0%,transparent 50%)}
+
+.atmosphere{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden}
+.firefly{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(180,255,100,0.85);box-shadow:0 0 6px 2px rgba(180,255,100,0.4);animation:fd linear infinite}
+@keyframes fd{0%{opacity:0;transform:translate(0,0)}15%{opacity:1}50%{opacity:.3}85%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+.mist{position:fixed;bottom:0;left:0;width:250%;height:30%;z-index:-1;pointer-events:none;background:linear-gradient(to top,rgba(200,220,210,0.03),transparent);animation:md 25s linear infinite}
+@keyframes md{0%{transform:translateX(0)}100%{transform:translateX(-40%)}}
+.leaf-p{position:absolute;pointer-events:none;opacity:0;animation:lf linear infinite}
+@keyframes lf{0%{transform:translateY(100vh) rotate(0) translateX(0);opacity:0}10%{opacity:.5}50%{transform:translateY(50vh) rotate(180deg) translateX(40px)}90%{opacity:.5}100%{transform:translateY(-10vh) rotate(360deg) translateX(-30px);opacity:0}}
+
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:rgba(0,0,0,0.2)}::-webkit-scrollbar-thumb{background:rgba(29,185,84,0.4);border-radius:10px}
+
+/* Loader */
+.loader-wrap{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:flex;justify-content:center;align-items:center;background:radial-gradient(ellipse at center,rgba(10,50,25,0.96),rgba(5,14,8,0.98));transition:opacity .8s,visibility .8s}
+.loader-wrap.hidden{opacity:0;visibility:hidden}
+.loader{display:flex;flex-direction:column;align-items:center;gap:22px}
+.loader-ring{width:68px;height:68px;border:3px solid rgba(29,185,84,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 25px rgba(29,185,84,0.15);position:relative}
+.loader-ring .leaf{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;animation:spin 1s linear infinite reverse}
+.loader-text{color:rgba(255,255,255,0.9);font-family:'Quicksand',sans-serif;font-size:20px;font-weight:700;letter-spacing:5px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Glass */
+.glass{background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03) 40%,rgba(255,255,255,0.01) 60%,rgba(255,255,255,0.06));backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid var(--glass-border);border-radius:var(--radius);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,0.12);position:relative;overflow:hidden;transition:var(--transition)}
+.glass::before{content:'';position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.015) 50%,transparent);border-radius:var(--radius) var(--radius) 50% 50%;pointer-events:none;z-index:1}
+.glass:hover{border-color:var(--glass-border-strong);box-shadow:0 12px 48px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.18);transform:translateY(-3px)}
+.glass-sm{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.12),inset 0 1px 0 rgba(255,255,255,0.08);position:relative;overflow:hidden;transition:var(--transition)}
+.glass-sm:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
+
+/* Navbar */
+header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:space-between;align-items:center;padding:0 5%;height:68px;background:rgba(255,255,255,0.06);backdrop-filter:blur(28px) saturate(1.8);border-bottom:1px solid rgba(255,255,255,0.08);transition:var(--transition)}
+header.scrolled{background:rgba(255,255,255,0.1);height:58px;box-shadow:0 4px 28px rgba(0,0,0,0.18)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,rgba(29,185,84,0.5),rgba(15,48,87,0.5));border:1px solid rgba(255,255,255,0.25);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px rgba(29,185,84,0.2)}
+.logo h2{font-family:'Quicksand',sans-serif;font-size:20px;font-weight:700}.logo h2 span{color:var(--green)}
+.logo small{font-size:.58rem;color:var(--text-sec);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:-2px}
+nav{display:flex;align-items:center;gap:3px}
+nav a{text-decoration:none;color:rgba(255,255,255,0.7);font-weight:500;font-size:13px;padding:7px 14px;border-radius:10px;transition:var(--transition)}
+nav a:hover{color:white;background:rgba(255,255,255,0.08)}
+nav a.active{color:white;background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.18)}
+.nav-cta{background:rgba(29,185,84,0.2)!important;color:white!important;padding:7px 18px!important;border-radius:22px!important;font-weight:600!important;margin-left:6px;border:1px solid rgba(29,185,84,0.35)!important}
+.live-ind{display:flex;align-items:center;gap:7px;padding:5px 13px;background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.22);border-radius:22px;font-size:.7rem;color:rgba(74,222,128,0.95);font-weight:600;margin-left:8px}
+.live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:blink 2s infinite;box-shadow:0 0 8px rgba(74,222,128,0.6)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:5px;background:none;border:none}
+.hamburger span{width:22px;height:2px;background:rgba(255,255,255,0.9);border-radius:3px;transition:.3s}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,6px)}.hamburger.active span:nth-child(2){opacity:0}.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-6px)}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(5px);z-index:998;opacity:0;transition:opacity .3s}.overlay.active{opacity:1;display:block}
+.mobile-menu{display:none;position:fixed;top:0;right:-100%;width:260px;height:100vh;background:rgba(8,22,12,0.92);backdrop-filter:blur(30px);border-left:1px solid rgba(255,255,255,0.08);padding:90px 30px 30px;z-index:999;transition:right .4s}.mobile-menu.active{right:0}
+.mobile-menu a{display:block;text-decoration:none;color:rgba(255,255,255,0.75);font-weight:500;font-size:15px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);transition:var(--transition)}
+
+/* Buttons */
+.btn{padding:12px 28px;border-radius:50px;border:none;cursor:pointer;font-weight:600;font-size:14px;font-family:'Poppins',sans-serif;transition:var(--transition);display:inline-flex;align-items:center;gap:7px;text-decoration:none;position:relative;overflow:hidden}
+.btn-primary{background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.22);backdrop-filter:blur(12px)}
+.btn-primary:hover{transform:translateY(-3px);background:rgba(255,255,255,0.18)}
+.btn-secondary{background:rgba(29,185,84,0.12);color:white;border:1px solid rgba(29,185,84,0.25);backdrop-filter:blur(12px)}
+.btn-secondary:hover{background:rgba(29,185,84,0.22);transform:translateY(-3px)}
+.btn-green{background:rgba(29,185,84,0.22);color:white;border:1px solid rgba(29,185,84,0.35);backdrop-filter:blur(12px)}
+.btn-green:hover{transform:translateY(-3px);background:rgba(29,185,84,0.32)}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;justify-content:center;align-items:center;text-align:center;padding:100px 20px 70px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-30%;width:700px;height:700px;background:radial-gradient(circle,rgba(29,185,84,0.05) 0%,transparent 70%);border-radius:50%;animation:fo 8s ease-in-out infinite}
+@keyframes fo{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-25px)}}
+.hero-content{position:relative;z-index:2;max-width:780px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);backdrop-filter:blur(18px);padding:8px 20px;border-radius:50px;font-size:12.5px;font-weight:500;margin-bottom:20px;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.88);animation:fid .8s ease}
+.badge-dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:blink 2s infinite}
+.hero h1{font-family:'Quicksand',sans-serif;font-size:clamp(2rem,5vw,3.3rem);font-weight:800;margin-bottom:16px;line-height:1.1;animation:fiu .8s ease .15s both;color:rgba(255,255,255,0.95)}
+.hero h1 .hl{background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;margin-bottom:30px;max-width:600px;margin-left:auto;margin-right:auto;color:rgba(255,255,255,0.7);line-height:1.7;animation:fiu .8s ease .3s both}
+.hero-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;animation:fiu .8s ease .45s both}
+@keyframes fiu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fid{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+.hero-stats{display:flex;justify-content:center;gap:18px;margin-top:45px;animation:fiu .8s ease .6s both;flex-wrap:wrap}
+.hero-stat{text-align:center;padding:16px 20px;min-width:110px;background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:14px;border:1px solid rgba(255,255,255,0.08)}
+.hero-stat h3{font-size:22px;font-weight:700;color:var(--green)}.hero-stat p{font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px}
+.scroll-ind{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;animation:bounce 2s infinite}
+.scroll-ind div{width:24px;height:40px;border:2px solid rgba(255,255,255,0.2);border-radius:13px;display:flex;justify-content:center;padding-top:7px;background:rgba(255,255,255,0.04)}
+.scroll-ind div span{width:3px;height:7px;background:rgba(255,255,255,0.65);border-radius:3px;animation:sd 2s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+@keyframes sd{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(10px)}}
+
+/* Sections */
+section{padding:85px 5%;position:relative}
+.section-header{text-align:center;margin-bottom:50px}
+.section-header .tag{display:inline-block;background:rgba(29,185,84,0.1);color:var(--green);padding:5px 16px;border-radius:50px;font-size:12px;font-weight:600;margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(29,185,84,0.18)}
+.section-header h2{font-family:'Quicksand',sans-serif;font-size:clamp(1.7rem,3.5vw,2.3rem);color:rgba(255,255,255,0.95);font-weight:700;margin-bottom:10px}
+.section-header p{color:rgba(255,255,255,0.55);max-width:500px;margin:0 auto;line-height:1.7;font-size:14.5px}
+
+/* ============ CITY SEARCH ============ */
+.search-section{padding:50px 5% 30px}
+.search-card{max-width:900px;margin:0 auto;padding:45px 40px;text-align:center;position:relative}
+.search-card h3{font-family:'Quicksand',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:8px;color:rgba(255,255,255,0.95);position:relative;z-index:2}
+.search-card>p{color:var(--text-sec);margin-bottom:25px;font-size:.9rem;position:relative;z-index:2}
+.search-wrap{position:relative;max-width:550px;margin:0 auto;z-index:100}
+.search-input-wrap{display:flex;gap:10px;position:relative}
+.search-input-wrap input{
+    flex:1;padding:14px 22px 14px 48px;
+    background:rgba(255,255,255,0.07);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.12);border-radius:50px;
+    font-family:'Poppins',sans-serif;font-size:14px;color:white;outline:none;transition:var(--transition);
+}
+.search-input-wrap input::placeholder{color:rgba(255,255,255,0.35)}
+.search-input-wrap input:focus{border-color:rgba(29,185,84,0.45);box-shadow:0 0 0 3px rgba(29,185,84,0.08),0 0 20px rgba(29,185,84,0.08);background:rgba(255,255,255,0.1)}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.35);font-size:15px;pointer-events:none;transition:var(--transition)}
+.search-input-wrap input:focus~.search-icon,.search-input-wrap input:not(:placeholder-shown)~.search-icon{color:var(--green)}
+
+/* Autocomplete */
+.autocomplete{
+    position:absolute;top:calc(100% + 6px);left:0;right:80px;
+    background:rgba(12,28,18,0.92);backdrop-filter:blur(30px) saturate(1.8);
+    border:1px solid rgba(255,255,255,0.1);border-radius:16px;
+    box-shadow:0 12px 48px rgba(0,0,0,0.4);max-height:320px;overflow-y:auto;
+    display:none;z-index:200;
+}
+.autocomplete.show{display:block;animation:acIn .25s ease}
+@keyframes acIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.ac-item{
+    display:flex;align-items:center;gap:12px;padding:12px 18px;
+    cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.selected{background:rgba(29,185,84,0.08)}
+.ac-item i{color:rgba(29,185,84,0.6);font-size:14px;width:20px;text-align:center}
+.ac-city{font-size:14px;color:rgba(255,255,255,0.9);font-weight:500}
+.ac-state{font-size:11.5px;color:rgba(255,255,255,0.4);margin-left:auto}
+.ac-aqi{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;margin-left:8px}
+.autocomplete::-webkit-scrollbar{width:4px}.autocomplete::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+
+/* City Result Panel */
+.city-result{
+    display:none;margin-top:30px;text-align:left;animation:fiu .5s ease;
+    position:relative;z-index:2;
+}
+.city-result.show{display:block}
+.city-result-header{
+    display:flex;align-items:center;gap:15px;margin-bottom:22px;
+    padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.city-icon{
+    width:55px;height:55px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;
+}
+.city-name{font-family:'Quicksand',sans-serif;font-size:1.3rem;font-weight:700}
+.city-state{font-size:.78rem;color:var(--text-sec)}
+.city-time{margin-left:auto;text-align:right;font-size:.7rem;color:var(--text-sec)}
+.city-time span{display:block;font-size:.9rem;font-weight:600;color:rgba(255,255,255,0.8)}
+
+.city-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.city-stat{padding:18px 14px;text-align:center;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
+.city-stat .cs-icon{font-size:1.2rem;margin-bottom:6px;display:block}
+.city-stat .cs-val{font-size:1.3rem;font-weight:700;display:block}
+.city-stat .cs-label{font-size:.65rem;color:var(--text-sec);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block}
+.city-stat .cs-status{font-size:.6rem;font-weight:600;padding:2px 8px;border-radius:5px;display:inline-block;margin-top:5px}
+
+.city-gases{margin-bottom:20px}
+.city-gases h4{font-size:.85rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.city-gases h4 i{color:var(--green);font-size:.8rem}
+.city-gas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.city-gas{padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);text-align:center}
+.city-gas .cg-name{font-size:.7rem;color:var(--text-sec);margin-bottom:3px}
+.city-gas .cg-val{font-size:1.05rem;font-weight:700}
+.city-gas .cg-bar{height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:6px;overflow:hidden}
+.city-gas .cg-fill{height:100%;border-radius:2px}
+
+.city-advisory{padding:18px;border-radius:14px;border-left:4px solid;margin-bottom:18px}
+.city-advisory h4{font-size:.85rem;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.city-advisory p{font-size:.78rem;color:var(--text-sec);line-height:1.5}
+.city-advisory .adv-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.city-advisory .adv-action{font-size:.68rem;padding:4px 12px;border-radius:8px;display:flex;align-items:center;gap:5px;font-weight:500}
+
+.city-compare{margin-top:18px;padding:15px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
+.city-compare h4{font-size:.8rem;font-weight:600;margin-bottom:10px;color:var(--text-sec)}
+.compare-bar-wrap{margin-bottom:8px}
+.compare-label{display:flex;justify-content:space-between;font-size:.68rem;margin-bottom:3px}
+.compare-label span:first-child{color:var(--text-sec)}.compare-label span:last-child{font-weight:600}
+.compare-bar{height:5px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+.compare-fill{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* Status Grid */
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:25px}
+.status-card{padding:20px;text-align:center}
+.s-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.1rem}
+.s-icon.grn{background:rgba(29,185,84,0.1);color:#4ade80}.s-icon.blu{background:rgba(33,150,243,0.1);color:#64B5F6}
+.s-icon.amb{background:rgba(255,193,7,0.1);color:#FFD54F}.s-icon.pur{background:rgba(156,39,176,0.1);color:#CE93D8}
+.status-card h3{font-size:.65rem;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;font-weight:500}
+.status-card .val{font-size:1.55rem;font-weight:700;display:block;margin-bottom:2px}
+.status-card .unit{font-size:.7rem;color:var(--text-sec)}
+.trend{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;padding:2px 8px;border-radius:6px;margin-top:4px}
+.trend.good{background:rgba(74,222,128,0.08);color:#4ade80}.trend.warn{background:rgba(251,191,36,0.08);color:#fbbf24}.trend.bad{background:rgba(248,113,113,0.08);color:#f87171}
+
+/* Dashboard Grid */
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.panel-head h2{font-family:'Quicksand',sans-serif;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.panel-head h2 i{color:#4ade80;font-size:.85rem}
+.time-btns{display:flex;gap:3px}
+.time-btns button{padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text-sec);font-size:.65rem;cursor:pointer;transition:.3s;font-family:'Poppins',sans-serif}
+.time-btns button.active{background:rgba(29,185,84,0.1);border-color:rgba(29,185,84,0.2);color:#4ade80}
+
+/* AQI Panel */
+.aqi-panel{padding:28px}
+.aqi-flex{display:flex;align-items:center;gap:30px;margin-bottom:22px}
+.aqi-ring{width:170px;height:170px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.22);border:2px solid rgba(255,255,255,0.06);position:relative;flex-shrink:0}
+.aqi-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;padding:4px;background:conic-gradient(from 180deg,#4CAF50,#8BC34A 15%,#FFC107 30%,#FF9800 50%,#F44336 70%,#9C27B0 85%,#4CAF50);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:rr 8s linear infinite}
+@keyframes rr{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.aqi-num{font-size:2.8rem;font-weight:800;line-height:1;font-family:'Quicksand',sans-serif}
+.aqi-lbl{font-size:.65rem;color:var(--text-sec);text-transform:uppercase;letter-spacing:2px;margin-top:3px}
+.aqi-detail h3{font-size:1.2rem;font-weight:600;margin-bottom:4px}
+.aqi-detail p{color:var(--text-sec);font-size:.8rem;line-height:1.6;margin-bottom:10px}
+.aqi-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:8px;font-size:.75rem;font-weight:600}
+.scale-bar{display:flex;border-radius:8px;overflow:hidden;height:7px;position:relative;margin-top:14px}
+.scale-seg{flex:1}.scale-seg:nth-child(1){background:#4CAF50}.scale-seg:nth-child(2){background:#8BC34A}.scale-seg:nth-child(3){background:#FFC107}.scale-seg:nth-child(4){background:#FF9800}.scale-seg:nth-child(5){background:#F44336}.scale-seg:nth-child(6){background:#9C27B0}
+.scale-marker{position:absolute;top:-6px;width:18px;height:18px;background:white;border-radius:50%;transform:translateX(-50%);box-shadow:0 2px 8px rgba(0,0,0,0.35);transition:left 1s ease;z-index:2}
+.scale-labels{display:flex;justify-content:space-between;margin-top:4px}.scale-labels span{font-size:.55rem;color:var(--text-sec)}
+
+.svg-chart{width:100%;height:160px;margin-top:16px}
+.chart-grid line{stroke:rgba(255,255,255,0.035)}.chart-label{fill:rgba(255,255,255,0.3);font-size:9px;font-family:'Poppins',sans-serif}
+.chart-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.chart-area{opacity:.1}
+.chart-dot{stroke-width:4;filter:drop-shadow(0 0 3px rgba(29,185,84,0.4))}
+
+/* Gas Panel */
+.gas-panel{padding:24px}
+.gas-list{display:flex;flex-direction:column;gap:11px}
+.gas-item{padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:11px;transition:.3s}
+.gas-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.gas-name{display:flex;align-items:center;gap:7px}
+.gas-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.gas-name span{font-size:.78rem;font-weight:500}.gas-val{font-size:.95rem;font-weight:700}
+.gas-bar{height:4px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+.gas-fill{height:100%;border-radius:3px;transition:width 1.5s ease}
+
+/* Advisory */
+.advisory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.adv-card{padding:20px;text-align:center;transition:var(--transition)}
+.adv-card:hover{transform:translateY(-3px)}
+.adv-icon-wrap{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.2rem}
+.adv-card h4{font-size:.73rem;font-weight:600;margin-bottom:4px;line-height:1.3}
+.adv-card p{font-size:.65rem;color:var(--text-sec);line-height:1.35}
+.adv-level{display:inline-flex;font-size:.58rem;font-weight:600;padding:2px 8px;border-radius:5px;margin-top:6px}
+
+.adv-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.adv-detail-card{padding:24px}
+.adv-detail-head{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.adv-detail-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.adv-detail-head h3{font-size:.9rem;font-weight:600}
+.adv-detail-head span{font-size:.68rem;color:var(--text-sec);display:block;margin-top:1px}
+.step-list{display:flex;flex-direction:column;gap:8px}
+.step-item{display:flex;align-items:flex-start;gap:9px;padding:10px 11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);border-radius:10px;transition:.3s}
+.step-item:hover{background:rgba(255,255,255,0.04)}
+.step-num{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0}
+.step-item h5{font-size:.73rem;font-weight:600;margin-bottom:1px}
+.step-item p{font-size:.64rem;color:var(--text-sec);line-height:1.3}
+
+.emergency-banner{padding:14px 22px;margin-bottom:20px;display:flex;align-items:center;gap:12px;border-left:4px solid;animation:bp 3s ease-in-out infinite}
+@keyframes bp{0%,100%{opacity:1}50%{opacity:.82}}
+.emergency-banner.hidden{display:none}
+.emergency-banner i{font-size:1.3rem;flex-shrink:0}
+.emergency-banner .bt h3{font-size:.85rem;font-weight:600;margin-bottom:1px}
+.emergency-banner .bt p{font-size:.73rem;color:var(--text-sec);line-height:1.3}
+
+/* Bottom Grid */
+.bottom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
+.btm-panel{padding:24px}
+.tds-display{text-align:center;padding:10px 0}
+.water-orb{width:115px;height:115px;border-radius:50%;margin:0 auto;position:relative;overflow:hidden;border:2px solid rgba(33,150,243,0.2);background:rgba(0,0,0,0.18)}
+.water-wave{position:absolute;bottom:0;left:-50%;width:200%;background:linear-gradient(to top,rgba(33,150,243,0.3),rgba(33,150,243,0.06) 60%,transparent);animation:wa 3.5s ease-in-out infinite;border-radius:38% 42% 0 0;height:50%}
+@keyframes wa{0%,100%{transform:translateX(0) translateY(0)}50%{transform:translateX(-5%) translateY(-4%)}}
+.water-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.5rem;font-weight:700;color:white;z-index:2}
+.water-val small{font-size:.6rem;display:block;font-weight:400;opacity:.8}
+.tds-qual{margin-top:10px;font-size:.8rem;font-weight:600}
+.tds-bar{display:flex;gap:3px;margin-top:8px;padding:0 5px}
+.tds-seg{flex:1;height:3px;border-radius:2px;opacity:.2;transition:opacity .5s}.tds-seg.on{opacity:1}
+.pred-card{padding:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);border-radius:11px;margin-bottom:9px}
+.pred-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.pred-title{font-size:.68rem;color:var(--text-sec)}.pred-conf{font-size:.58rem;padding:2px 7px;border-radius:5px;background:rgba(29,185,84,0.07);color:#4ade80}
+.pred-val{font-size:1.3rem;font-weight:700}.pred-trend{font-size:.64rem;color:var(--text-sec);margin-top:2px}
+.dev-card{padding:24px;margin-top:20px}
+.dev-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.dev-chip{width:46px;height:46px;background:linear-gradient(135deg,rgba(29,185,84,0.12),rgba(33,150,243,0.12));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:1px solid rgba(29,185,84,0.12)}
+.dev-info h3{font-size:.95rem;font-weight:600}.dev-info p{font-size:.68rem;color:var(--text-sec)}
+.dev-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dev-stat{text-align:center;padding:12px 5px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.dev-stat i{font-size:.95rem;margin-bottom:4px;display:block}
+.dev-stat .dv{font-size:.9rem;font-weight:700;display:block}
+.dev-stat .dl{font-size:.58rem;color:var(--text-sec);margin-top:2px;display:block}
+
+/* Features */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(18px);padding:30px 26px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.09);transition:var(--transition);position:relative;overflow:hidden}
+.feature-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--green),rgba(34,211,238,0.7));transform:scaleX(0);transition:transform .4s;transform-origin:left}
+.feature-card:hover::after{transform:scaleX(1)}.feature-card:hover{transform:translateY(-5px);background:rgba(255,255,255,0.1)}
+.feature-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.fi-g{background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.18)}.fi-b{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.18)}
+.fi-p{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.18)}.fi-o{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.18)}
+.fi-r{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.18)}.fi-c{background:rgba(0,188,212,0.1);border:1px solid rgba(0,188,212,0.18)}
+.feature-card h3{font-size:16px;color:rgba(255,255,255,0.93);margin-bottom:8px;font-weight:600}
+.feature-card p{color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7}
+
+/* Impact */
+.impact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;text-align:center}
+.impact-stat{padding:30px 16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(16px);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.08);transition:var(--transition)}
+.impact-stat:hover{transform:translateY(-4px)}.impact-stat h2{font-size:36px;font-weight:800;color:var(--green)}
+.impact-stat p{color:rgba(255,255,255,0.55);font-size:13px;margin-top:6px}.impact-stat .stat-icon{font-size:24px;margin-bottom:6px;display:block}
+.impact-stat .divider{width:32px;height:3px;background:rgba(29,185,84,0.25);margin:8px auto;border-radius:2px}
+
+/* Footer */
+footer{background:rgba(0,0,0,0.25);backdrop-filter:blur(22px);color:white;padding:50px 5% 22px;border-top:1px solid rgba(255,255,255,0.06)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px;margin-bottom:30px}
+.footer-brand h3{font-family:'Quicksand',sans-serif;font-size:18px;margin-bottom:8px}.footer-brand h3 span{color:var(--green)}.footer-brand p{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7}
+.footer-links h4{font-size:13.5px;margin-bottom:12px;font-weight:600;color:rgba(255,255,255,0.82)}
+.footer-links a{display:block;color:rgba(255,255,255,0.4);text-decoration:none;font-size:13px;padding:3px 0;transition:var(--transition)}.footer-links a:hover{color:var(--green)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:12px;color:rgba(255,255,255,0.35)}
+.social-links{display:flex;gap:8px}
+.social-link{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;transition:var(--transition);cursor:pointer;font-size:12px;color:rgba(255,255,255,0.55)}
+.social-link:hover{background:rgba(29,185,84,0.15);color:var(--green);transform:translateY(-2px)}
+
+.back-to-top{position:fixed;bottom:22px;right:22px;width:42px;height:42px;background:rgba(29,185,84,0.18);backdrop-filter:blur(12px);color:white;border:1px solid rgba(29,185,84,0.25);border-radius:12px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:var(--transition);z-index:100}
+.back-to-top.visible{opacity:1;visibility:visible}.back-to-top:hover{transform:translateY(-3px);background:rgba(29,185,84,0.28)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:rgba(255,255,255,0.08);backdrop-filter:blur(22px);color:white;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:500;border:1px solid rgba(255,255,255,0.12);z-index:9999;opacity:0;transition:all .4s;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.reveal{opacity:0;transform:translateY(30px);transition:all .7s cubic-bezier(0.4,0,0.2,1)}.reveal.active{opacity:1;transform:translateY(0)}
+.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}.rd4{transition-delay:.4s}.rd5{transition-delay:.5s}
+
+@media(max-width:1100px){.dash-grid,.adv-detail-grid{grid-template-columns:1fr}.advisory-grid{grid-template-columns:repeat(2,1fr)}.bottom-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.dev-stats{grid-template-columns:repeat(2,1fr)}.city-stats{grid-template-columns:repeat(2,1fr)}.city-gas-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){header{padding:0 4%}nav{display:none}.hamburger{display:flex}.mobile-menu{display:block}.status-grid,.advisory-grid{grid-template-columns:1fr 1fr}.bottom-grid{grid-template-columns:1fr}.aqi-flex{flex-direction:column;text-align:center}.hero-stats{gap:10px}.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column;text-align:center}section{padding:65px 4%}.search-card{padding:30px 20px}.city-stats{grid-template-columns:1fr 1fr}.city-gas-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.status-grid,.advisory-grid{grid-template-columns:1fr}.dev-stats,.city-stats{grid-template-columns:1fr 1fr}.hero-stats{flex-direction:column;gap:8px}.hero-buttons{flex-direction:column;align-items:center}.search-input-wrap{flex-direction:column}.autocomplete{right:0}}
+</style>
+</head>
+<body>
+<div class="bg-r"></div>
+<div class="atmosphere" id="atmo"></div>
+<div class="mist"></div>
+
+<div class="loader-wrap" id="loader"><div class="loader"><div class="loader-ring"><span class="leaf">🍃</span></div><div class="loader-text">ECONERVE</div></div></div>
+
+<header id="header">
+    <a href="#" class="logo"><div class="logo-icon"><i class="fas fa-leaf"></i></div><div><h2>Eco<span>Nerve</span></h2><small>Environmental Intelligence</small></div></a>
+    <nav><a href="#home" class="active">Home</a><a href="#features">Features</a><a href="#search-section">Search</a><a href="#dashboard">Dashboard</a><a href="#advisory">Advisory</a><a href="#impact">Impact</a><a href="#" class="nav-cta"><i class="fas fa-rocket"></i> Get Started</a></nav>
+    <div style="display:flex;align-items:center;gap:6px"><div class="live-ind"><div class="live-dot"></div>LIVE</div><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button></div>
+</header>
+<div class="overlay" id="overlay"></div>
+<div class="mobile-menu" id="mm"><a href="#home">🏠 Home</a><a href="#features">🌬️ Features</a><a href="#search-section">🔍 Search</a><a href="#dashboard">📊 Dashboard</a><a href="#advisory">🛡️ Advisory</a><a href="#impact">🌍 Impact</a></div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+    <div class="hero-content">
+        <div class="hero-badge"><span class="badge-dot"></span>Live Environmental Monitoring Active</div>
+        <h1>AI-Powered<br><span class="hl">Sustainability</span> Intelligence</h1>
+        <p>EcoNerve combines ESP32 IoT sensors, Firebase, and Machine Learning to monitor AQI, TDS, and gas levels across Indian cities.</p>
+        <div class="hero-buttons">
+            <a href="#search-section" class="btn btn-primary"><i class="fas fa-search"></i> Search Your City</a>
+            <a href="#dashboard" class="btn btn-secondary"><i class="fas fa-chart-line"></i> Live Dashboard</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><h3 id="hc1">0</h3><p>Indian Cities</p></div>
+            <div class="hero-stat"><h3 id="hc2">0%</h3><p>ML Accuracy</p></div>
+            <div class="hero-stat"><h3>24/7</h3><p>Monitoring</p></div>
+            <div class="hero-stat"><h3 id="hc3">0</h3><p>Active Sensors</p></div>
+        </div>
+    </div>
+    <div class="scroll-ind"><div><span></span></div></div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+    <div class="section-header reveal"><span class="tag">🌿 Features</span><h2>What Makes EcoNerve Special</h2><p>Cutting-edge IoT and AI for environmental protection across India.</p></div>
+    <div class="features-grid">
+        <div class="feature-card reveal rd1"><div class="feature-icon fi-g"><i class="fas fa-wind"></i></div><h3>AQI Monitoring</h3><p>Real-time Air Quality Index tracking across 100+ Indian cities with ESP32 sensors.</p></div>
+        <div class="feature-card reveal rd2"><div class="feature-icon fi-b"><i class="fas fa-water"></i></div><h3>Water TDS Analysis</h3><p>Monitor Total Dissolved Solids for water purity with instant classification.</p></div>
+        <div class="feature-card reveal rd3"><div class="feature-icon fi-p"><i class="fas fa-brain"></i></div><h3>ML Predictions</h3><p>Forecast pollution spikes 6-24 hours ahead with 99.2% accuracy.</p></div>
+        <div class="feature-card reveal rd4"><div class="feature-icon fi-o"><i class="fas fa-bell"></i></div><h3>Smart Alerts</h3><p>Instant notifications when air or water quality becomes hazardous.</p></div>
+        <div class="feature-card reveal rd5"><div class="feature-icon fi-r"><i class="fas fa-vial"></i></div><h3>Gas Level Tracking</h3><p>Monitor CO₂, CO, NO₂, SO₂, O₃, and PM2.5 with danger indicators.</p></div>
+        <div class="feature-card reveal rd5"><div class="feature-icon fi-c"><i class="fas fa-microchip"></i></div><h3>ESP32 + Firebase</h3><p>Hardware-powered collection with real-time cloud sync.</p></div>
+    </div>
+</section>
+
+<!-- ============ CITY SEARCH SECTION ============ -->
+<section class="search-section" id="search-section">
+    <div class="search-card glass reveal">
+        <h3><i class="fas fa-map-marker-alt" style="color:var(--green);margin-right:8px"></i>Search Indian Cities</h3>
+        <p>Enter any Indian city to check real-time AQI, TDS, gas levels and get health advisories</p>
+        <div class="search-wrap">
+            <div class="search-input-wrap">
+                <input type="text" id="cityInput" placeholder="Type a city name... (e.g. Delhi, Mumbai)" autocomplete="off">
+                <i class="fas fa-search search-icon"></i>
+                <button class="btn btn-green" onclick="searchCity()"><i class="fas fa-search"></i> Search</button>
+            </div>
+            <div class="autocomplete" id="autocomplete"></div>
+        </div>
+
+        <!-- City Result -->
+        <div class="city-result" id="cityResult">
+            <div class="city-result-header">
+                <div class="city-icon" id="cityIcon" style="background:rgba(29,185,84,0.12);color:#4ade80"><i class="fas fa-city"></i></div>
+                <div>
+                    <div class="city-name" id="cityNameDisplay">Delhi</div>
+                    <div class="city-state" id="cityStateDisplay">Delhi NCR, India</div>
+                </div>
+                <div class="city-time"><span id="cityTime">--:--</span>Last updated</div>
+            </div>
+
+            <div class="city-stats" id="cityStats">
+                <!-- Filled by JS -->
+            </div>
+
+            <div class="city-gases">
+                <h4><i class="fas fa-vial"></i> Gas Concentrations</h4>
+                <div class="city-gas-grid" id="cityGasGrid">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <div class="city-advisory glass-sm" id="cityAdvisory">
+                <!-- Filled by JS -->
+            </div>
+
+            <div class="city-compare" id="cityCompare">
+                <h4><i class="fas fa-balance-scale" style="color:var(--green);margin-right:6px"></i> National Comparison</h4>
+                <div id="compareContent"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+    <div class="section-header reveal"><span class="tag">📡 Live Data</span><h2>Real-Time Sensor Dashboard</h2><p>Live data from your nearest ESP32 sensor hub.</p></div>
+    <div class="status-grid">
+        <div class="status-card glass-sm reveal rd1"><div class="s-icon grn"><i class="fas fa-wind"></i></div><h3>Air Quality</h3><span class="val" id="sv_aqi" style="color:#4ade80">72</span><span class="unit">AQI</span><div class="trend good" id="sv_aqi_trend"><i class="fas fa-arrow-down"></i> Good</div></div>
+        <div class="status-card glass-sm reveal rd2"><div class="s-icon blu"><i class="fas fa-tint"></i></div><h3>Water TDS</h3><span class="val" id="sv_tds" style="color:#64B5F6">245</span><span class="unit">ppm</span><div class="trend good"><i class="fas fa-check"></i> Optimal</div></div>
+        <div class="status-card glass-sm reveal rd3"><div class="s-icon amb"><i class="fas fa-temperature-high"></i></div><h3>Temperature</h3><span class="val" id="sv_temp" style="color:#FFD54F">28.5</span><span class="unit">°C</span><div class="trend warn"><i class="fas fa-arrow-up"></i> +1.2°</div></div>
+        <div class="status-card glass-sm reveal rd4"><div class="s-icon pur"><i class="fas fa-droplet"></i></div><h3>Humidity</h3><span class="val" id="sv_hum" style="color:#CE93D8">65</span><span class="unit">%</span><div class="trend good"><i class="fas fa-check"></i> Normal</div></div>
+    </div>
+    <div class="emergency-banner glass-sm hidden" id="emergBanner"><i class="fas fa-triangle-exclamation" id="bannerIco"></i><div class="bt"><h3 id="bannerT">Alert</h3><p id="bannerM">Take precautions.</p></div></div>
+    <div class="dash-grid">
+        <div class="aqi-panel glass reveal rd3">
+            <div class="panel-head"><h2><i class="fas fa-lungs"></i>Air Quality Index</h2><div class="time-btns"><button class="active">Live</button><button>1H</button><button>24H</button></div></div>
+            <div class="aqi-flex">
+                <div class="aqi-ring" id="aqiRing"><span class="aqi-num" id="aqiNum">72</span><span class="aqi-lbl">AQI</span></div>
+                <div class="aqi-detail"><h3 id="aqiSt">Satisfactory</h3><p id="aqiDsc">Air quality is acceptable.</p><span class="aqi-badge" id="aqiBdg" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.2)"><i class="fas fa-shield-halved"></i><span id="aqiBdgT">Satisfactory</span></span></div>
+            </div>
+            <div style="position:relative"><div class="scale-bar"><div class="scale-seg"></div><div class="scale-seg"></div><div class="scale-seg"></div><div class="scale-seg"></div><div class="scale-seg"></div><div class="scale-seg"></div></div><div class="scale-marker" id="scaleM" style="left:14%"></div><div class="scale-labels"><span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span></div></div>
+            <svg class="svg-chart" viewBox="0 0 700 160" preserveAspectRatio="none"><g class="chart-grid"><line x1="0" y1="32" x2="700" y2="32"/><line x1="0" y1="64" x2="700" y2="64"/><line x1="0" y1="96" x2="700" y2="96"/><line x1="0" y1="128" x2="700" y2="128"/></g><defs><linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4ade80" stop-opacity=".3"/><stop offset="100%" stop-color="#4ade80" stop-opacity="0"/></linearGradient></defs><path class="chart-area" id="chartA" fill="url(#gG)" d="M50,140 L160,133 L270,136 L380,126 L490,130 L600,120 L680,114 L680,148 L50,148 Z"/><path class="chart-line" id="chartL" stroke="#4ade80" d="M50,140 L160,133 L270,136 L380,126 L490,130 L600,120 L680,114"/><circle class="chart-dot" id="chartD" cx="680" cy="114" r="4" fill="#4ade80" stroke="rgba(74,222,128,.3)"/></svg>
+        </div>
+        <div class="gas-panel glass reveal rd4">
+            <div class="panel-head"><h2><i class="fas fa-vial"></i>Gas Levels</h2><span style="font-size:.6rem;color:var(--text-sec)">ppm</span></div>
+            <div class="gas-list">
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(244,67,54,0.1);color:#EF9A9A"><i class="fas fa-smog"></i></div><span>CO₂</span></div><span class="gas-val" id="g_co2" style="color:#EF9A9A">412</span></div><div class="gas-bar"><div class="gas-fill" id="gb_co2" style="width:41%;background:linear-gradient(90deg,#4CAF50,#8BC34A)"></div></div></div>
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(255,152,0,0.1);color:#FFB74D"><i class="fas fa-fire"></i></div><span>CO</span></div><span class="gas-val" id="g_co" style="color:#FFB74D">2.3</span></div><div class="gas-bar"><div class="gas-fill" id="gb_co" style="width:23%;background:linear-gradient(90deg,#4CAF50,#FFC107)"></div></div></div>
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(33,150,243,0.1);color:#64B5F6"><i class="fas fa-atom"></i></div><span>NO₂</span></div><span class="gas-val" id="g_no2" style="color:#64B5F6">18.5</span></div><div class="gas-bar"><div class="gas-fill" id="gb_no2" style="width:18%;background:linear-gradient(90deg,#2196F3,#64B5F6)"></div></div></div>
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(156,39,176,0.1);color:#CE93D8"><i class="fas fa-biohazard"></i></div><span>SO₂</span></div><span class="gas-val" id="g_so2" style="color:#CE93D8">8.2</span></div><div class="gas-bar"><div class="gas-fill" id="gb_so2" style="width:8%;background:linear-gradient(90deg,#9C27B0,#CE93D8)"></div></div></div>
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(0,188,212,0.1);color:#80DEEA"><i class="fas fa-cloud"></i></div><span>O₃</span></div><span class="gas-val" id="g_o3" style="color:#80DEEA">35.1</span></div><div class="gas-bar"><div class="gas-fill" id="gb_o3" style="width:35%;background:linear-gradient(90deg,#00BCD4,#80DEEA)"></div></div></div>
+                <div class="gas-item"><div class="gas-head"><div class="gas-name"><div class="gas-ico" style="background:rgba(255,193,7,0.1);color:#FFD54F"><i class="fas fa-circle-nodes"></i></div><span>PM2.5</span></div><span class="gas-val" id="g_pm25" style="color:#FFD54F">24.8</span></div><div class="gas-bar"><div class="gas-fill" id="gb_pm25" style="width:25%;background:linear-gradient(90deg,#FFC107,#FFD54F)"></div></div></div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-grid">
+        <div class="btm-panel glass reveal rd2"><div class="panel-head"><h2><i class="fas fa-water"></i>Water TDS</h2></div><div class="tds-display"><div class="water-orb"><div class="water-wave" id="wWave"></div><div class="water-val" id="tdsM">245<small>ppm</small></div></div><div class="tds-qual" id="tdsQ" style="color:#64B5F6"><i class="fas fa-check-circle"></i> Excellent</div><div class="tds-bar"><div class="tds-seg on" style="background:#4CAF50"></div><div class="tds-seg on" style="background:#8BC34A"></div><div class="tds-seg" style="background:#FFC107"></div><div class="tds-seg" style="background:#FF9800"></div><div class="tds-seg" style="background:#F44336"></div></div></div></div>
+        <div class="btm-panel glass reveal rd3"><div class="panel-head"><h2><i class="fas fa-brain"></i>ML Predictions</h2></div><div class="pred-card"><div class="pred-head"><span class="pred-title">AQI Forecast (6hr)</span><span class="pred-conf">94.2%</span></div><div class="pred-val" id="predA" style="color:#4ade80">78</div><div class="pred-trend"><i class="fas fa-arrow-trend-up"></i> Slight increase</div></div><div class="pred-card"><div class="pred-head"><span class="pred-title">TDS Prediction</span><span class="pred-conf">91.8%</span></div><div class="pred-val" id="predT" style="color:#64B5F6">252 ppm</div><div class="pred-trend"><i class="fas fa-arrow-trend-right"></i> Stable</div></div><div class="pred-card"><div class="pred-head"><span class="pred-title">Gas Alert</span><span class="pred-conf">96.5%</span></div><div class="pred-val" id="predG" style="color:#4ade80"><i class="fas fa-shield-halved"></i> Low Risk</div></div></div>
+        <div class="btm-panel glass reveal rd4"><div class="panel-head"><h2><i class="fas fa-heart-pulse"></i>Health Tips</h2></div><div id="healthTips"></div></div>
+    </div>
+    <div class="dev-card glass reveal rd5"><div class="dev-head"><div class="dev-chip"><i class="fas fa-microchip"></i></div><div class="dev-info"><h3>ESP32 Sensor Hub</h3><p><i class="fas fa-circle" style="color:#4ade80;font-size:.4rem"></i> Connected • Firebase • <span id="lastUp">2s ago</span></p></div><div style="margin-left:auto"><span class="live-ind" style="font-size:.6rem"><i class="fas fa-database" style="color:#FF9800"></i>Firebase</span></div></div><div class="dev-stats"><div class="dev-stat"><i class="fas fa-wifi" style="color:#4ade80"></i><span class="dv" id="ds_w">-42 dBm</span><span class="dl">WiFi</span></div><div class="dev-stat"><i class="fas fa-clock" style="color:#64B5F6"></i><span class="dv">14d 6h</span><span class="dl">Uptime</span></div><div class="dev-stat"><i class="fas fa-memory" style="color:#FFD54F"></i><span class="dv" id="ds_m">68%</span><span class="dl">Memory</span></div><div class="dev-stat"><i class="fas fa-exchange-alt" style="color:#CE93D8"></i><span class="dv" id="ds_r">2.4 KB/s</span><span class="dl">Data Rate</span></div></div></div>
+</section>
+
+<!-- ADVISORY -->
+<section id="advisory">
+    <div class="section-header reveal"><span class="tag">🛡️ Advisory</span><h2>Preventive Advisory Dashboard</h2><p>Dynamic safety recommendations based on current hazard level.</p></div>
+    <div style="display:flex;justify-content:center;margin-bottom:22px"><span id="advTag" class="reveal" style="font-size:.7rem;padding:4px 13px;border-radius:8px;background:rgba(74,222,128,0.08);color:#4ade80;font-weight:600"><i class="fas fa-circle" style="font-size:.3rem;vertical-align:middle"></i> LOW RISK</span></div>
+    <div class="advisory-grid" id="advGrid"></div>
+    <div class="adv-detail-grid" id="advDet"></div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+    <div class="section-header reveal"><span class="tag">🌍 Impact</span><h2>Our Impact Across India</h2></div>
+    <div class="impact-grid">
+        <div class="impact-stat reveal rd1"><span class="stat-icon">🏘️</span><h2><span class="counter" data-target="100">0</span>+</h2><div class="divider"></div><p>Indian Cities</p></div>
+        <div class="impact-stat reveal rd2"><span class="stat-icon">📊</span><h2><span class="counter" data-target="12847">0</span>+</h2><div class="divider"></div><p>Data Points Daily</p></div>
+        <div class="impact-stat reveal rd3"><span class="stat-icon">🎯</span><h2><span class="counter" data-target="99">0</span>%</h2><div class="divider"></div><p>Accuracy</p></div>
+        <div class="impact-stat reveal rd4"><span class="stat-icon">⏰</span><h2>24/7</h2><div class="divider"></div><p>Monitoring</p></div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-grid">
+        <div class="footer-brand"><h3>🌿 Eco<span>Nerve</span></h3><p>AI-powered environmental monitoring across India using ESP32, Firebase & ML.</p></div>
+        <div class="footer-links"><h4>Product</h4><a href="#">Features</a><a href="#">Dashboard</a><a href="#">API</a></div>
+        <div class="footer-links"><h4>Company</h4><a href="#">About</a><a href="#">Blog</a><a href="#">Contact</a></div>
+        <div class="footer-links"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 EcoNerve. All rights reserved. 🇮🇳</p><div class="social-links"><div class="social-link"><i class="fab fa-twitter"></i></div><div class="social-link"><i class="fab fa-linkedin-in"></i></div><div class="social-link"><i class="fab fa-github"></i></div></div></div>
+</footer>
+
+<button class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// INDIA CITIES DATABASE (100+ cities with realistic data)
+// ============================================================
+const INDIA_CITIES = [
+    {name:"Delhi",state:"Delhi NCR",aqi:285,tds:520,temp:34,hum:45,co2:680,co:5.2,no2:62,so2:28,o3:48,pm25:78},
+    {name:"New Delhi",state:"Delhi NCR",aqi:278,tds:510,temp:35,hum:42,co2:670,co:5.0,no2:60,so2:26,o3:46,pm25:75},
+    {name:"Mumbai",state:"Maharashtra",aqi:142,tds:380,temp:30,hum:78,co2:520,co:3.1,no2:38,so2:15,o3:35,pm25:42},
+    {name:"Pune",state:"Maharashtra",aqi:105,tds:320,temp:28,hum:65,co2:460,co:2.4,no2:28,so2:12,o3:30,pm25:32},
+    {name:"Nagpur",state:"Maharashtra",aqi:125,tds:350,temp:33,hum:55,co2:490,co:2.8,no2:32,so2:14,o3:33,pm25:38},
+    {name:"Nashik",state:"Maharashtra",aqi:85,tds:280,temp:27,hum:60,co2:420,co:1.8,no2:22,so2:8,o3:28,pm25:24},
+    {name:"Bengaluru",state:"Karnataka",aqi:88,tds:290,temp:26,hum:68,co2:430,co:2.0,no2:25,so2:10,o3:32,pm25:26},
+    {name:"Mysuru",state:"Karnataka",aqi:52,tds:220,temp:25,hum:70,co2:395,co:1.2,no2:15,so2:5,o3:25,pm25:15},
+    {name:"Chennai",state:"Tamil Nadu",aqi:115,tds:420,temp:32,hum:80,co2:480,co:2.6,no2:34,so2:16,o3:38,pm25:35},
+    {name:"Coimbatore",state:"Tamil Nadu",aqi:68,tds:260,temp:28,hum:72,co2:410,co:1.5,no2:18,so2:7,o3:26,pm25:18},
+    {name:"Madurai",state:"Tamil Nadu",aqi:78,tds:310,temp:31,hum:70,co2:425,co:1.8,no2:20,so2:9,o3:28,pm25:22},
+    {name:"Hyderabad",state:"Telangana",aqi:108,tds:340,temp:31,hum:62,co2:470,co:2.5,no2:30,so2:13,o3:34,pm25:33},
+    {name:"Kolkata",state:"West Bengal",aqi:168,tds:450,temp:32,hum:82,co2:550,co:3.5,no2:42,so2:20,o3:40,pm25:52},
+    {name:"Ahmedabad",state:"Gujarat",aqi:155,tds:480,temp:35,hum:40,co2:530,co:3.2,no2:40,so2:18,o3:42,pm25:48},
+    {name:"Surat",state:"Gujarat",aqi:130,tds:400,temp:33,hum:65,co2:500,co:2.9,no2:35,so2:16,o3:36,pm25:40},
+    {name:"Vadodara",state:"Gujarat",aqi:118,tds:370,temp:34,hum:50,co2:485,co:2.6,no2:32,so2:14,o3:34,pm25:36},
+    {name:"Rajkot",state:"Gujarat",aqi:95,tds:330,temp:33,hum:48,co2:445,co:2.2,no2:26,so2:11,o3:30,pm25:28},
+    {name:"Jaipur",state:"Rajasthan",aqi:175,tds:550,temp:36,hum:30,co2:560,co:3.8,no2:45,so2:22,o3:44,pm25:55},
+    {name:"Jodhpur",state:"Rajasthan",aqi:195,tds:620,temp:38,hum:25,co2:580,co:4.0,no2:48,so2:24,o3:46,pm25:60},
+    {name:"Udaipur",state:"Rajasthan",aqi:82,tds:300,temp:32,hum:40,co2:418,co:1.8,no2:20,so2:8,o3:27,pm25:22},
+    {name:"Lucknow",state:"Uttar Pradesh",aqi:225,tds:480,temp:33,hum:55,co2:620,co:4.5,no2:55,so2:25,o3:48,pm25:68},
+    {name:"Kanpur",state:"Uttar Pradesh",aqi:255,tds:560,temp:34,hum:50,co2:650,co:4.8,no2:58,so2:28,o3:50,pm25:72},
+    {name:"Varanasi",state:"Uttar Pradesh",aqi:210,tds:500,temp:33,hum:58,co2:600,co:4.2,no2:52,so2:24,o3:45,pm25:65},
+    {name:"Agra",state:"Uttar Pradesh",aqi:235,tds:520,temp:35,hum:48,co2:630,co:4.6,no2:56,so2:26,o3:48,pm25:70},
+    {name:"Noida",state:"Uttar Pradesh",aqi:268,tds:490,temp:34,hum:46,co2:660,co:4.9,no2:59,so2:27,o3:47,pm25:74},
+    {name:"Ghaziabad",state:"Uttar Pradesh",aqi:295,tds:510,temp:34,hum:44,co2:690,co:5.3,no2:64,so2:30,o3:50,pm25:80},
+    {name:"Chandigarh",state:"Punjab",aqi:95,tds:300,temp:30,hum:55,co2:440,co:2.1,no2:24,so2:10,o3:28,pm25:28},
+    {name:"Ludhiana",state:"Punjab",aqi:165,tds:420,temp:32,hum:52,co2:540,co:3.4,no2:40,so2:18,o3:38,pm25:50},
+    {name:"Amritsar",state:"Punjab",aqi:145,tds:400,temp:31,hum:54,co2:515,co:3.0,no2:36,so2:16,o3:36,pm25:44},
+    {name:"Patna",state:"Bihar",aqi:245,tds:480,temp:33,hum:65,co2:640,co:4.7,no2:56,so2:26,o3:48,pm25:72},
+    {name:"Bhopal",state:"Madhya Pradesh",aqi:128,tds:360,temp:31,hum:55,co2:495,co:2.7,no2:32,so2:14,o3:34,pm25:38},
+    {name:"Indore",state:"Madhya Pradesh",aqi:108,tds:330,temp:30,hum:52,co2:465,co:2.4,no2:28,so2:12,o3:30,pm25:32},
+    {name:"Gwalior",state:"Madhya Pradesh",aqi:185,tds:440,temp:34,hum:45,co2:570,co:3.8,no2:46,so2:22,o3:44,pm25:58},
+    {name:"Kochi",state:"Kerala",aqi:48,tds:200,temp:28,hum:82,co2:385,co:1.0,no2:12,so2:4,o3:22,pm25:12},
+    {name:"Thiruvananthapuram",state:"Kerala",aqi:42,tds:190,temp:29,hum:84,co2:380,co:0.9,no2:10,so2:3,o3:20,pm25:10},
+    {name:"Kozhikode",state:"Kerala",aqi:45,tds:195,temp:28,hum:83,co2:382,co:0.95,no2:11,so2:4,o3:21,pm25:11},
+    {name:"Guwahati",state:"Assam",aqi:92,tds:280,temp:27,hum:75,co2:435,co:2.0,no2:22,so2:9,o3:28,pm25:26},
+    {name:"Shillong",state:"Meghalaya",aqi:35,tds:150,temp:20,hum:80,co2:370,co:0.7,no2:8,so2:2,o3:18,pm25:8},
+    {name:"Imphal",state:"Manipur",aqi:38,tds:160,temp:22,hum:78,co2:372,co:0.8,no2:9,so2:3,o3:19,pm25:9},
+    {name:"Dehradun",state:"Uttarakhand",aqi:72,tds:240,temp:25,hum:65,co2:415,co:1.5,no2:18,so2:7,o3:25,pm25:20},
+    {name:"Haridwar",state:"Uttarakhand",aqi:65,tds:220,temp:26,hum:62,co2:405,co:1.3,no2:16,so2:6,o3:24,pm25:17},
+    {name:"Rishikesh",state:"Uttarakhand",aqi:40,tds:170,temp:24,hum:68,co2:378,co:0.8,no2:10,so2:3,o3:20,pm25:10},
+    {name:"Shimla",state:"Himachal Pradesh",aqi:32,tds:140,temp:18,hum:72,co2:365,co:0.6,no2:7,so2:2,o3:16,pm25:7},
+    {name:"Manali",state:"Himachal Pradesh",aqi:25,tds:120,temp:15,hum:68,co2:355,co:0.5,no2:5,so2:1,o3:14,pm25:5},
+    {name:"Dharamshala",state:"Himachal Pradesh",aqi:28,tds:130,temp:17,hum:70,co2:358,co:0.55,no2:6,so2:2,o3:15,pm25:6},
+    {name:"Srinagar",state:"Jammu & Kashmir",aqi:45,tds:180,temp:16,hum:65,co2:380,co:0.9,no2:10,so2:4,o3:20,pm25:11},
+    {name:"Leh",state:"Ladakh",aqi:18,tds:90,temp:8,hum:30,co2:340,co:0.3,no2:3,so2:1,o3:10,pm25:3},
+    {name:"Gangtok",state:"Sikkim",aqi:30,tds:140,temp:18,hum:78,co2:362,co:0.6,no2:7,so2:2,o3:16,pm25:6},
+    {name:"Ranchi",state:"Jharkhand",aqi:135,tds:380,temp:28,hum:62,co2:505,co:2.8,no2:34,so2:15,o3:35,pm25:40},
+    {name:"Jamshedpur",state:"Jharkhand",aqi:155,tds:420,temp:30,hum:58,co2:530,co:3.2,no2:38,so2:18,o3:38,pm25:48},
+    {name:"Bhubaneswar",state:"Odisha",aqi:98,tds:310,temp:30,hum:75,co2:445,co:2.2,no2:26,so2:11,o3:30,pm25:28},
+    {name:"Raipur",state:"Chhattisgarh",aqi:148,tds:400,temp:32,hum:55,co2:520,co:3.0,no2:36,so2:16,o3:36,pm25:45},
+    {name:"Visakhapatnam",state:"Andhra Pradesh",aqi:82,tds:290,temp:30,hum:78,co2:425,co:1.8,no2:22,so2:9,o3:28,pm25:22},
+    {name:"Vijayawada",state:"Andhra Pradesh",aqi:95,tds:320,temp:32,hum:72,co2:440,co:2.1,no2:25,so2:10,o3:30,pm25:28},
+    {name:"Tirupati",state:"Andhra Pradesh",aqi:62,tds:250,temp:30,hum:70,co2:405,co:1.3,no2:16,so2:6,o3:24,pm25:16},
+    {name:"Mangaluru",state:"Karnataka",aqi:55,tds:230,temp:28,hum:80,co2:398,co:1.1,no2:14,so2:5,o3:23,pm25:14},
+    {name:"Hubli",state:"Karnataka",aqi:75,tds:270,temp:28,hum:62,co2:418,co:1.6,no2:19,so2:8,o3:26,pm25:20},
+    {name:"Goa",state:"Goa",aqi:38,tds:200,temp:29,hum:80,co2:375,co:0.8,no2:9,so2:3,o3:19,pm25:9},
+    {name:"Panaji",state:"Goa",aqi:40,tds:205,temp:29,hum:82,co2:378,co:0.85,no2:10,so2:3,o3:20,pm25:10},
+    {name:"Jammu",state:"Jammu & Kashmir",aqi:88,tds:300,temp:28,hum:55,co2:432,co:1.9,no2:22,so2:9,o3:28,pm25:25},
+    {name:"Gurgaon",state:"Haryana",aqi:262,tds:500,temp:35,hum:42,co2:655,co:5.0,no2:62,so2:28,o3:48,pm25:76},
+    {name:"Faridabad",state:"Haryana",aqi:255,tds:490,temp:34,hum:44,co2:648,co:4.8,no2:60,so2:27,o3:47,pm25:74},
+    {name:"Rohtak",state:"Haryana",aqi:195,tds:460,temp:33,hum:48,co2:575,co:3.9,no2:48,so2:22,o3:44,pm25:60},
+    {name:"Aurangabad",state:"Maharashtra",aqi:100,tds:320,temp:30,hum:58,co2:450,co:2.2,no2:26,so2:11,o3:30,pm25:30},
+    {name:"Kolhapur",state:"Maharashtra",aqi:70,tds:260,temp:27,hum:68,co2:412,co:1.5,no2:18,so2:7,o3:26,pm25:18},
+    {name:"Thane",state:"Maharashtra",aqi:138,tds:375,temp:30,hum:76,co2:510,co:3.0,no2:36,so2:15,o3:35,pm25:42},
+    {name:"Navi Mumbai",state:"Maharashtra",aqi:125,tds:360,temp:30,hum:78,co2:495,co:2.8,no2:33,so2:14,o3:34,pm25:38},
+    {name:"Trivandrum",state:"Kerala",aqi:42,tds:190,temp:29,hum:84,co2:380,co:0.9,no2:10,so2:3,o3:20,pm25:10},
+    {name:"Salem",state:"Tamil Nadu",aqi:72,tds:270,temp:30,hum:68,co2:415,co:1.6,no2:18,so2:7,o3:26,pm25:19},
+    {name:"Tiruchirappalli",state:"Tamil Nadu",aqi:75,tds:280,temp:31,hum:72,co2:418,co:1.7,no2:19,so2:8,o3:27,pm25:20},
+    {name:"Warangal",state:"Telangana",aqi:92,tds:310,temp:30,hum:60,co2:440,co:2.1,no2:24,so2:10,o3:30,pm25:27},
+    {name:"Howrah",state:"West Bengal",aqi:162,tds:440,temp:32,hum:80,co2:545,co:3.4,no2:41,so2:19,o3:40,pm25:50},
+    {name:"Siliguri",state:"West Bengal",aqi:98,tds:300,temp:26,hum:78,co2:442,co:2.1,no2:24,so2:10,o3:28,pm25:28},
+    {name:"Cuttack",state:"Odisha",aqi:88,tds:300,temp:30,hum:76,co2:435,co:2.0,no2:23,so2:10,o3:28,pm25:25},
+    {name:"Dibrugarh",state:"Assam",aqi:72,tds:240,temp:25,hum:80,co2:412,co:1.5,no2:17,so2:6,o3:24,pm25:18},
+    {name:"Agartala",state:"Tripura",aqi:58,tds:220,temp:27,hum:82,co2:400,co:1.2,no2:14,so2:5,o3:22,pm25:14},
+    {name:"Aizawl",state:"Mizoram",aqi:28,tds:130,temp:20,hum:75,co2:358,co:0.5,no2:6,so2:2,o3:15,pm25:6},
+    {name:"Itanagar",state:"Arunachal Pradesh",aqi:32,tds:140,temp:22,hum:78,co2:362,co:0.6,no2:7,so2:2,o3:16,pm25:7},
+    {name:"Kohima",state:"Nagaland",aqi:30,tds:135,temp:20,hum:76,co2:360,co:0.55,no2:6,so2:2,o3:16,pm25:6},
+    {name:"Port Blair",state:"Andaman & Nicobar",aqi:22,tds:110,temp:28,hum:85,co2:348,co:0.4,no2:4,so2:1,o3:12,pm25:4},
+    {name:"Puducherry",state:"Puducherry",aqi:55,tds:240,temp:30,hum:78,co2:395,co:1.1,no2:14,so2:5,o3:23,pm25:14},
+    {name:"Meerut",state:"Uttar Pradesh",aqi:215,tds:470,temp:33,hum:50,co2:610,co:4.3,no2:54,so2:24,o3:46,pm25:66},
+    {name:"Allahabad",state:"Uttar Pradesh",aqi:198,tds:460,temp:33,hum:55,co2:590,co:4.0,no2:50,so2:22,o3:44,pm25:62},
+    {name:"Bareilly",state:"Uttar Pradesh",aqi:205,tds:450,temp:32,hum:52,co2:600,co:4.1,no2:52,so2:23,o3:45,pm25:64},
+    {name:"Aligarh",state:"Uttar Pradesh",aqi:228,tds:500,temp:34,hum:48,co2:625,co:4.5,no2:56,so2:26,o3:48,pm25:68},
+    {name:"Moradabad",state:"Uttar Pradesh",aqi:218,tds:475,temp:33,hum:50,co2:615,co:4.4,no2:54,so2:25,o3:46,pm25:66},
+    {name:"Mathura",state:"Uttar Pradesh",aqi:195,tds:460,temp:34,hum:46,co2:585,co:3.9,no2:48,so2:22,o3:44,pm25:60},
+    {name:"Bikaner",state:"Rajasthan",aqi:165,tds:580,temp:38,hum:22,co2:545,co:3.5,no2:42,so2:20,o3:42,pm25:52},
+    {name:"Ajmer",state:"Rajasthan",aqi:120,tds:420,temp:34,hum:35,co2:488,co:2.6,no2:30,so2:13,o3:33,pm25:36},
+    {name:"Kota",state:"Rajasthan",aqi:138,tds:450,temp:35,hum:32,co2:510,co:3.0,no2:36,so2:16,o3:36,pm25:42},
+    {name:"Jabalpur",state:"Madhya Pradesh",aqi:115,tds:350,temp:31,hum:55,co2:475,co:2.5,no2:30,so2:13,o3:32,pm25:34},
+    {name:"Ujjain",state:"Madhya Pradesh",aqi:98,tds:330,temp:31,hum:50,co2:448,co:2.2,no2:26,so2:11,o3:30,pm25:28},
+    {name:"Durgapur",state:"West Bengal",aqi:148,tds:410,temp:30,hum:72,co2:520,co:3.1,no2:38,so2:17,o3:38,pm25:45},
+    {name:"Asansol",state:"West Bengal",aqi:155,tds:420,temp:31,hum:70,co2:530,co:3.2,no2:40,so2:18,o3:39,pm25:48},
+    {name:"Dhanbad",state:"Jharkhand",aqi:175,tds:440,temp:30,hum:60,co2:555,co:3.6,no2:44,so2:20,o3:42,pm25:55},
+    {name:"Bokaro",state:"Jharkhand",aqi:162,tds:425,temp:29,hum:62,co2:540,co:3.4,no2:42,so2:19,o3:40,pm25:50},
+    {name:"Muzaffarpur",state:"Bihar",aqi:210,tds:470,temp:33,hum:68,co2:605,co:4.2,no2:52,so2:24,o3:46,pm25:65},
+    {name:"Gaya",state:"Bihar",aqi:195,tds:450,temp:32,hum:65,co2:585,co:3.9,no2:48,so2:22,o3:44,pm25:60},
+    {name:"Bhagalpur",state:"Bihar",aqi:185,tds:440,temp:32,hum:66,co2:570,co:3.7,no2:46,so2:21,o3:43,pm25:56},
+    {name:"Thrissur",state:"Kerala",aqi:40,tds:195,temp:28,hum:82,co2:376,co:0.85,no2:10,so2:3,o3:20,pm25:9},
+    {name:"Ooty",state:"Tamil Nadu",aqi:20,tds:100,temp:15,hum:75,co2:345,co:0.3,no2:4,so2:1,o3:12,pm25:4},
+    {name:"Munnar",state:"Kerala",aqi:18,tds:95,temp:18,hum:80,co2:342,co:0.3,no2:3,so2:1,o3:10,pm25:3},
+    {name:"Darjeeling",state:"West Bengal",aqi:28,tds:130,temp:14,hum:78,co2:355,co:0.5,no2:6,so2:2,o3:15,pm25:6},
+    {name:"Nainital",state:"Uttarakhand",aqi:30,tds:140,temp:16,hum:72,co2:360,co:0.6,no2:7,so2:2,o3:16,pm25:6},
+];
+
+const NATIONAL_AVG = {aqi:125,tds:350,co2:480,pm25:38};
+
+// ============================================================
+// AQI CLASSIFICATION
+// ============================================================
+function getAQI(v){
+    if(v<=50) return{lv:0,st:'Good',ds:'Excellent air quality. No health risk.',cl:'#4CAF50',tx:'#4ade80',risk:'No Risk',em:'😊',actions:['Enjoy outdoors','Exercise freely','Open windows']};
+    if(v<=100) return{lv:1,st:'Satisfactory',ds:'Acceptable. Minor concern for sensitive individuals.',cl:'#8BC34A',tx:'#a3e635',risk:'Low Risk',em:'🙂',actions:['Safe for most','Monitor if asthmatic','Stay hydrated']};
+    if(v<=200) return{lv:2,st:'Moderate',ds:'May cause breathing discomfort to sensitive people.',cl:'#FFC107',tx:'#fbbf24',risk:'Moderate',em:'😐',actions:['Limit outdoor time','Wear N95 mask','Use air purifier']};
+    if(v<=300) return{lv:3,st:'Poor',ds:'Unhealthy for everyone. Stay indoors.',cl:'#FF9800',tx:'#fb923c',risk:'High Risk',em:'😷',actions:['Stay indoors','N95 mandatory','Seal windows','Run HEPA purifier']};
+    if(v<=400) return{lv:4,st:'Very Poor',ds:'Health alert! Avoid all outdoor exposure.',cl:'#F44336',tx:'#f87171',risk:'Very High',em:'🚨',actions:['Complete lockdown','N99 respirator','Medical kit ready','Evacuate if worse']};
+    return{lv:5,st:'Hazardous',ds:'EMERGENCY! Health emergency. Evacuate if possible.',cl:'#880E4F',tx:'#f472b6',risk:'Severe',em:'☠️',actions:['EVACUATE','Full respirator','Hospital if symptoms','Call emergency']};
+}
+function getTDS(v){
+    if(v<=300) return{st:'Excellent',cl:'#64B5F6',ic:'check-circle',sg:1};
+    if(v<=500) return{st:'Good',cl:'#4ade80',ic:'check-circle',sg:2};
+    if(v<=800) return{st:'Fair',cl:'#fbbf24',ic:'exclamation-triangle',sg:3};
+    if(v<=1200) return{st:'Poor',cl:'#fb923c',ic:'exclamation-circle',sg:4};
+    return{st:'Unsafe',cl:'#f87171',ic:'times-circle',sg:5};
+}
+function gasColor(v,th){return v<=th[0]?'#4ade80':v<=th[1]?'#fbbf24':v<=th[2]?'#fb923c':'#f87171'}
+
+// ============================================================
+// CITY SEARCH
+// ============================================================
+const cityInput = document.getElementById('cityInput');
+const acBox = document.getElementById('autocomplete');
+let acIdx = -1;
+
+cityInput.addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+    acIdx = -1;
+    if(q.length < 1){acBox.classList.remove('show');return}
+    const matches = INDIA_CITIES.filter(c => c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q)).slice(0,8);
+    if(!matches.length){acBox.innerHTML='<div style="padding:14px 18px;color:var(--text-sec);font-size:13px"><i class="fas fa-search" style="margin-right:8px"></i>No cities found</div>';acBox.classList.add('show');return}
+    acBox.innerHTML = matches.map((c,i) => {
+        const a = getAQI(c.aqi);
+        return `<div class="ac-item" data-idx="${i}" onclick="selectCity('${c.name}')"><i class="fas fa-map-marker-alt"></i><span class="ac-city">${highlightMatch(c.name,q)}</span><span class="ac-state">${c.state}</span><span class="ac-aqi" style="background:${a.cl}20;color:${a.tx}">${c.aqi} AQI</span></div>`;
+    }).join('');
+    acBox.classList.add('show');
+});
+
+function highlightMatch(text,q){
+    const idx = text.toLowerCase().indexOf(q);
+    if(idx===-1) return text;
+    return text.slice(0,idx)+'<strong style="color:#4ade80">'+text.slice(idx,idx+q.length)+'</strong>'+text.slice(idx+q.length);
+}
+
+cityInput.addEventListener('keydown',function(e){
+    const items = acBox.querySelectorAll('.ac-item');
+    if(!items.length) return;
+    if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);items.forEach(i=>i.classList.remove('selected'));items[acIdx].classList.add('selected');items[acIdx].scrollIntoView({block:'nearest'})}
+    else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(acIdx-1,0);items.forEach(i=>i.classList.remove('selected'));items[acIdx].classList.add('selected');items[acIdx].scrollIntoView({block:'nearest'})}
+    else if(e.key==='Enter'){e.preventDefault();if(acIdx>=0&&items[acIdx])items[acIdx].click();else searchCity()}
+    else if(e.key==='Escape'){acBox.classList.remove('show')}
+});
+
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))acBox.classList.remove('show')});
+
+function selectCity(name){
+    cityInput.value=name;acBox.classList.remove('show');searchCity();
+}
+
+function searchCity(){
+    const q = cityInput.value.trim().toLowerCase();
+    if(!q){showToast('⚠️ Please enter a city name');return}
+    const city = INDIA_CITIES.find(c=>c.name.toLowerCase()===q);
+    if(!city){
+        const partial = INDIA_CITIES.find(c=>c.name.toLowerCase().includes(q));
+        if(partial){cityInput.value=partial.name;displayCityResult(partial);return}
+        showToast('❌ City not found. Try another Indian city.');return;
+    }
+    displayCityResult(city);
+}
+
+function displayCityResult(city){
+    const a=getAQI(city.aqi), t=getTDS(city.tds);
+    const res=document.getElementById('cityResult');
+    res.classList.add('show');
+
+    document.getElementById('cityNameDisplay').textContent=city.name;
+    document.getElementById('cityStateDisplay').textContent=city.state+', India 🇮🇳';
+    const ci=document.getElementById('cityIcon');
+    ci.style.background=a.cl+'15';ci.style.color=a.tx;
+
+    const now=new Date();
+    document.getElementById('cityTime').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+
+    // Stats
+    document.getElementById('cityStats').innerHTML=`
+        <div class="city-stat"><span class="cs-icon">🌬️</span><span class="cs-val" style="color:${a.tx}">${city.aqi}</span><span class="cs-label">AQI</span><span class="cs-status" style="background:${a.cl}15;color:${a.tx}">${a.em} ${a.st}</span></div>
+        <div class="city-stat"><span class="cs-icon">💧</span><span class="cs-val" style="color:${t.cl}">${city.tds}</span><span class="cs-label">TDS (ppm)</span><span class="cs-status" style="background:${t.cl}15;color:${t.cl}">${t.st}</span></div>
+        <div class="city-stat"><span class="cs-icon">🌡️</span><span class="cs-val" style="color:#FFD54F">${city.temp}°C</span><span class="cs-label">Temperature</span><span class="cs-status" style="background:rgba(255,213,79,0.1);color:#FFD54F">${city.temp>35?'Hot':city.temp>30?'Warm':'Normal'}</span></div>
+        <div class="city-stat"><span class="cs-icon">💦</span><span class="cs-val" style="color:#CE93D8">${city.hum}%</span><span class="cs-label">Humidity</span><span class="cs-status" style="background:rgba(206,147,216,0.1);color:#CE93D8">${city.hum>75?'High':city.hum>45?'Normal':'Low'}</span></div>
+    `;
+
+    // Gases
+    const gases=[
+        {n:'CO₂',v:city.co2,mx:1000,u:'ppm',th:[400,600,800]},
+        {n:'CO',v:city.co,mx:10,u:'ppm',th:[2,5,8]},
+        {n:'NO₂',v:city.no2,mx:100,u:'ppb',th:[20,50,80]},
+        {n:'SO₂',v:city.so2,mx:80,u:'ppb',th:[10,30,60]},
+        {n:'O₃',v:city.o3,mx:100,u:'ppb',th:[30,60,80]},
+        {n:'PM2.5',v:city.pm25,mx:100,u:'µg/m³',th:[15,35,55]}
+    ];
+    document.getElementById('cityGasGrid').innerHTML=gases.map(g=>{
+        const c=gasColor(g.v,g.th),pct=Math.min(g.v/g.mx*100,100);
+        return`<div class="city-gas"><div class="cg-name">${g.n}</div><div class="cg-val" style="color:${c}">${typeof g.v==='number'&&g.v%1?g.v.toFixed(1):g.v} <span style="font-size:.6rem;font-weight:400;color:var(--text-sec)">${g.u}</span></div><div class="cg-bar"><div class="cg-fill" style="width:${pct}%;background:linear-gradient(90deg,${c},${c}80)"></div></div></div>`;
+    }).join('');
+
+    // Advisory
+    const adv=document.getElementById('cityAdvisory');
+    adv.style.borderColor=a.cl;adv.style.background=a.cl+'08';
+    adv.innerHTML=`<h4 style="color:${a.tx}"><i class="fas fa-shield-halved"></i> Health Advisory — ${a.risk}</h4><p>${a.ds}</p><div class="adv-actions">${a.actions.map(ac=>`<span class="adv-action" style="background:${a.cl}12;color:${a.tx}"><i class="fas fa-check-circle"></i>${ac}</span>`).join('')}</div>`;
+
+    // National comparison
+    const cmp=[
+        {l:'AQI',v:city.aqi,avg:NATIONAL_AVG.aqi,mx:500},
+        {l:'TDS',v:city.tds,avg:NATIONAL_AVG.tds,mx:1000},
+        {l:'CO₂',v:city.co2,avg:NATIONAL_AVG.co2,mx:1000},
+        {l:'PM2.5',v:city.pm25,avg:NATIONAL_AVG.pm25,mx:100}
+    ];
+    document.getElementById('compareContent').innerHTML=cmp.map(c=>{
+        const clr=c.v>c.avg?'#f87171':'#4ade80';
+        const diff=((c.v-c.avg)/c.avg*100).toFixed(0);
+        const sign=diff>0?'+':'';
+        return`<div class="compare-bar-wrap"><div class="compare-label"><span>${c.l}</span><span style="color:${clr}">${c.v} <span style="font-size:.55rem;opacity:.7">(Avg: ${c.avg}) ${sign}${diff}%</span></span></div><div class="compare-bar"><div class="compare-fill" style="width:${Math.min(c.v/c.mx*100,100)}%;background:linear-gradient(90deg,${clr},${clr}80)"></div></div></div>`;
+    }).join('');
+
+    showToast(`✅ Data loaded for ${city.name} — AQI: ${city.aqi} (${a.st})`);
+    res.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ============================================================
+// ADVISORY DATA (shortened for space)
+// ============================================================
+function getAdv(lv){
+    const A=[[{i:'fa-person-running',t:'Exercise Freely',d:'All outdoor activities safe.',c:'#4ade80',l:'Safe'},{i:'fa-window-maximize',t:'Open Windows',d:'Maximize natural airflow.',c:'#4ade80',l:'Open'},{i:'fa-face-smile',t:'No Protection',d:'No mask needed.',c:'#4ade80',l:'None'},{i:'fa-baby',t:'All Ages Safe',d:'No restrictions.',c:'#4ade80',l:'Safe'}],[{i:'fa-person-walking',t:'Mostly Safe',d:'Monitor if sensitive.',c:'#a3e635',l:'Aware'},{i:'fa-mask-face',t:'Mask Optional',d:'Asthmatics may carry.',c:'#a3e635',l:'Optional'},{i:'fa-lungs',t:'Keep Inhaler',d:'Rescue inhaler handy.',c:'#a3e635',l:'Aware'},{i:'fa-droplet',t:'Hydrate',d:'Drink 8+ glasses.',c:'#a3e635',l:'Important'}],[{i:'fa-person-walking-arrow-right',t:'Limit Outdoor',d:'Reduce prolonged exertion.',c:'#fbbf24',l:'Reduce'},{i:'fa-mask-face',t:'Wear N95',d:'Mask recommended.',c:'#fbbf24',l:'Needed'},{i:'fa-fan',t:'Air Purifier',d:'Activate HEPA.',c:'#fbbf24',l:'ON'},{i:'fa-car-side',t:'Car Windows',d:'Keep closed.',c:'#fbbf24',l:'Closed'}],[{i:'fa-house-lock',t:'Stay Indoors',d:'Work from home.',c:'#fb923c',l:'Critical'},{i:'fa-head-side-mask',t:'N95 Mandatory',d:'Required outdoors.',c:'#fb923c',l:'Must'},{i:'fa-hospital',t:'Medical Ready',d:'Know nearest hospital.',c:'#fb923c',l:'Ready'},{i:'fa-shower',t:'Decontaminate',d:'Shower after exposure.',c:'#fb923c',l:'Essential'}],[{i:'fa-house-chimney-crack',t:'LOCKDOWN',d:'Do NOT go outside.',c:'#f87171',l:'CRITICAL'},{i:'fa-kit-medical',t:'Medical Kit',d:'First aid + O₂ ready.',c:'#f87171',l:'EMERGENCY'},{i:'fa-bed',t:'Rest',d:'Minimize activity.',c:'#f87171',l:'MANDATORY'},{i:'fa-right-from-bracket',t:'Evacuate Plan',d:'Ready to move.',c:'#f87171',l:'PREPARED'}],[{i:'fa-circle-radiation',t:'EVACUATE',d:'Move to clean area.',c:'#f472b6',l:'NOW'},{i:'fa-mask-ventilator',t:'Full Respirator',d:'P100 for movement.',c:'#f472b6',l:'CRITICAL'},{i:'fa-hand-holding-medical',t:'Seek Medical',d:'Hospital if breathing issues.',c:'#f472b6',l:'URGENT'},{i:'fa-heart-circle-exclamation',t:'Life Support',d:'O₂ cylinder + CPR.',c:'#f472b6',l:'CRITICAL'}]];
+    const P=[[{t:'Outdoor Guide',s:'All clear',i:'fa-sun',c:'#4ade80',steps:['Exercise freely outdoors','Let children play outside','Organize outdoor events','Full intensity sports OK']},{t:'Home Tips',s:'Optimize indoor air',i:'fa-house',c:'#64B5F6',steps:['Open all windows','Care for indoor plants','Turn off purifiers','Dry clothes outdoors']}],[{t:'Activity Guide',s:'Stay active carefully',i:'fa-clipboard-check',c:'#a3e635',steps:['Light outdoor exercise fine','Watch for symptoms','Avoid rush hour areas','Increase water intake']},{t:'Home Measures',s:'Simple improvements',i:'fa-house',c:'#64B5F6',steps:['Open windows away from traffic','Wet-mop floors','Use kitchen exhaust','Monitor AQI dashboard']}],[{t:'Outdoor Safety',s:'Important precautions',i:'fa-shield-halved',c:'#fbbf24',steps:['Max 2-3 hours outdoor','No heavy gardening','Wear fitted N95 mask','Watch for coughing']},{t:'Indoor Protection',s:'Create safe zone',i:'fa-house-medical',c:'#fb923c',steps:['HEPA purifier medium-high','Close windows, seal gaps','No candles or aerosols','Designate clean room']}],[{t:'Emergency Protocol',s:'Essential travel only',i:'fa-triangle-exclamation',c:'#fb923c',steps:['Leave only for emergencies','N95 + sunglasses + cover skin','Under 30 min outdoor','Shower immediately after']},{t:'Indoor Safety',s:'Maximum protection',i:'fa-house-medical-flag',c:'#f87171',steps:['Tape all window edges','Run purifiers 24/7','DIY box fan filter','Check SpO2 hourly']}],[{t:'SURVIVAL',s:'Life-threatening air',i:'fa-skull-crossbones',c:'#f87171',steps:['Seal home completely','Wet cloth if no mask','SpO2 check every hour','Evacuate if AQI 450+']},{t:'MEDICAL EMERGENCY',s:'Critical health',i:'fa-hospital',c:'#f472b6',steps:['Blue lips = call 911','Use nebulizer if prescribed','Elderly → hospital','Document symptoms']}],[{t:'⚠️ EMERGENCY',s:'Follow to survive',i:'fa-circle-exclamation',c:'#f472b6',steps:['EVACUATE immediately','Innermost room if stuck','Shallow breathing, wet cloth','Call 911 for help']},{t:'🏥 MEDICAL',s:'Critical response',i:'fa-staff-snake',c:'#f87171',steps:['Unconscious = LIFE THREAT','Upright + O₂ + inhaler','Drive to hospital NOW','Bring all medications']}]];
+    return{cards:A[Math.min(lv,5)],panels:P[Math.min(lv,5)]};
+}
+
+function renderAdv(lv,cat){
+    const ad=getAdv(lv),g=document.getElementById('advGrid'),d=document.getElementById('advDet'),tag=document.getElementById('advTag');
+    const tc=['rgba(74,222,128,0.08)','rgba(163,230,53,0.08)','rgba(251,191,36,0.08)','rgba(251,146,60,0.08)','rgba(248,113,113,0.08)','rgba(244,114,182,0.1)'];
+    const tt=['#4ade80','#a3e635','#fbbf24','#fb923c','#f87171','#f472b6'];
+    tag.style.background=tc[lv];tag.style.color=tt[lv];tag.innerHTML=`<i class="fas fa-circle" style="font-size:.3rem;vertical-align:middle"></i> ${cat.risk.toUpperCase()}`;
+    g.innerHTML=ad.cards.map(c=>`<div class="adv-card glass-sm"><div class="adv-icon-wrap" style="background:${c.c}12;color:${c.c}"><i class="fas ${c.i}"></i></div><h4>${c.t}</h4><p>${c.d}</p><span class="adv-level" style="background:${c.c}12;color:${c.c}">${c.l}</span></div>`).join('');
+    d.innerHTML=ad.panels.map(p=>`<div class="adv-detail-card glass"><div class="adv-detail-head"><div class="adv-detail-icon" style="background:${p.c}12;color:${p.c}"><i class="fas ${p.i}"></i></div><div><h3 style="color:${p.c}">${p.t}</h3><span>${p.s}</span></div></div><div class="step-list">${p.steps.map((s,i)=>`<div class="step-item"><div class="step-num" style="background:${p.c}12;color:${p.c}">${i+1}</div><div><h5>${s}</h5></div></div>`).join('')}</div></div>`).join('');
+    const ban=document.getElementById('emergBanner');
+    if(lv>=3){ban.classList.remove('hidden');ban.style.borderColor=cat.cl;ban.style.background=cat.cl+'08';document.getElementById('bannerIco').style.color=cat.tx;document.getElementById('bannerT').textContent=lv>=4?'🚨 EMERGENCY!':'⚠️ Air Quality Alert';document.getElementById('bannerT').style.color=cat.tx;document.getElementById('bannerM').textContent=cat.ds}else ban.classList.add('hidden');
+}
+
+function renderHealth(lv){
+    const tips=[[{i:'fa-person-running',c:'#4ade80',t:'Exercise Freely',d:'Perfect for outdoor sports.'},{i:'fa-glass-water',c:'#64B5F6',t:'Stay Hydrated',d:'Drink plenty of water.'},{i:'fa-seedling',c:'#a3e635',t:'Go Green',d:'Plant a tree today!'},{i:'fa-face-laugh-beam',c:'#fbbf24',t:'Enjoy Nature',d:'Spend time in parks.'}],[{i:'fa-person-walking',c:'#a3e635',t:'Moderate Activity',d:'Light exercise fine.'},{i:'fa-eye',c:'#fbbf24',t:'Watch Symptoms',d:'Note any irritation.'},{i:'fa-lungs',c:'#CE93D8',t:'Deep Breathing',d:'Practice lung exercises.'},{i:'fa-glass-water',c:'#64B5F6',t:'Hydrate More',d:'Flush inhaled particles.'}],[{i:'fa-mask-face',c:'#fbbf24',t:'Wear Mask',d:'N95 recommended.'},{i:'fa-fan',c:'#64B5F6',t:'Air Purifier',d:'Run HEPA purifier.'},{i:'fa-pills',c:'#fb923c',t:'Meds Ready',d:'Keep inhalers handy.'},{i:'fa-window-minimize',c:'#f87171',t:'Stay Indoor',d:'Close windows.'}],[{i:'fa-house-lock',c:'#fb923c',t:'Stay Indoor',d:'Work from home.'},{i:'fa-head-side-mask',c:'#f87171',t:'N95 Must',d:'Never go out without.'},{i:'fa-hospital',c:'#f472b6',t:'Medical Alert',d:'Watch for difficulty.'},{i:'fa-shower',c:'#CE93D8',t:'Decontaminate',d:'Shower after exposure.'}],[{i:'fa-triangle-exclamation',c:'#f87171',t:'DANGER',d:'Do NOT go outside.'},{i:'fa-kit-medical',c:'#f472b6',t:'Emergency Kit',d:'O₂ + medicine ready.'},{i:'fa-phone-volume',c:'#fb923c',t:'Call Help',d:'Emergency services.'},{i:'fa-bed',c:'#CE93D8',t:'Rest',d:'Minimize all activity.'}],[{i:'fa-skull-crossbones',c:'#f472b6',t:'EVACUATE',d:'Leave immediately.'},{i:'fa-truck-medical',c:'#f87171',t:'Hospital',d:'Symptoms → hospital.'},{i:'fa-mask-ventilator',c:'#fb923c',t:'Respirator',d:'Full face required.'},{i:'fa-heart-circle-exclamation',c:'#f87171',t:'Life Threat',d:'CPR readiness.'}]];
+    document.getElementById('healthTips').innerHTML=tips[Math.min(lv,5)].map(t=>`<div class="step-item"><div class="step-num" style="background:${t.c}12;color:${t.c};border-radius:8px;width:32px;height:32px"><i class="fas ${t.i}" style="font-size:.75rem"></i></div><div><h5>${t.t}</h5><p>${t.d}</p></div></div>`).join('');
+}
+
+// ============================================================
+// MAIN UPDATE
+// ============================================================
+function updateAll(aqi,tds,temp,hum,co2,co,no2,so2,o3,pm25){
+    const a=getAQI(aqi),t=getTDS(tds);
+    document.getElementById('sv_aqi').textContent=aqi;document.getElementById('sv_aqi').style.color=a.tx;
+    document.getElementById('sv_tds').textContent=tds;document.getElementById('sv_temp').textContent=temp.toFixed(1);document.getElementById('sv_hum').textContent=hum;
+    const tr=document.getElementById('sv_aqi_trend');tr.className='trend '+(a.lv<=1?'good':a.lv<=2?'warn':'bad');tr.innerHTML=`<i class="fas fa-${a.lv<=1?'arrow-down':'arrow-up'}"></i> ${a.st}`;
+    document.getElementById('aqiNum').textContent=aqi;document.getElementById('aqiNum').style.color=a.tx;
+    document.getElementById('aqiRing').style.boxShadow=`0 0 25px ${a.cl}22,inset 0 0 15px ${a.cl}0d`;
+    document.getElementById('aqiSt').textContent=a.st;document.getElementById('aqiSt').style.color=a.tx;document.getElementById('aqiDsc').textContent=a.ds;
+    const bg=document.getElementById('aqiBdg');bg.style.background=a.cl+'12';bg.style.color=a.tx;bg.style.borderColor=a.cl+'28';document.getElementById('aqiBdgT').textContent=a.st+' '+a.em;
+    document.getElementById('scaleM').style.left=Math.min(aqi/500*100,100)+'%';
+    document.getElementById('tdsM').innerHTML=tds+'<small>ppm</small>';document.getElementById('tdsQ').innerHTML=`<i class="fas fa-${t.ic}"></i> ${t.st}`;document.getElementById('tdsQ').style.color=t.cl;
+    document.querySelectorAll('.tds-seg').forEach((s,i)=>s.classList.toggle('on',i<t.sg));document.getElementById('wWave').style.height=Math.min(tds/1200*100,90)+'%';
+    const sg=(id,v,mx)=>{document.getElementById('g_'+id).textContent=typeof v==='number'&&v%1?v.toFixed(1):v;document.getElementById('gb_'+id).style.width=Math.min(v/mx*100,100)+'%'};
+    sg('co2',co2,1000);sg('co',co,10);sg('no2',no2,100);sg('so2',so2,100);sg('o3',o3,100);sg('pm25',pm25,100);
+    const gc=(id,v,th)=>{const b=document.getElementById('gb_'+id);b.style.background=v<=th[0]?'linear-gradient(90deg,#4CAF50,#81C784)':v<=th[1]?'linear-gradient(90deg,#8BC34A,#CDDC39)':v<=th[2]?'linear-gradient(90deg,#FFC107,#FF9800)':'linear-gradient(90deg,#FF5722,#F44336)'};
+    gc('co2',co2,[400,600,800]);gc('co',co,[2,5,8]);gc('pm25',pm25,[15,35,55]);gc('no2',no2,[20,50,80]);gc('so2',so2,[10,30,60]);gc('o3',o3,[30,60,80]);
+    const pa=Math.round(aqi*(1+Math.random()*.12-.04)),pt=Math.round(tds*(1+Math.random()*.08-.02)),pac=getAQI(pa);
+    document.getElementById('predA').textContent=pa;document.getElementById('predA').style.color=pac.tx;document.getElementById('predT').textContent=pt+' ppm';
+    const gr=a.lv<=1?'Low Risk':a.lv<=2?'Moderate':'High Risk',grc=a.lv<=1?'#4ade80':a.lv<=2?'#fbbf24':'#f87171';
+    document.getElementById('predG').innerHTML=`<i class="fas fa-shield-halved"></i> ${gr}`;document.getElementById('predG').style.color=grc;
+    renderAdv(a.lv,a);renderHealth(a.lv);updateChart(aqi,a.cl);
+}
+
+let cPts=[140,133,136,126,130,120,125,118,114,110];
+function updateChart(aqi,cl){const y=148-(aqi/500*132);cPts.shift();cPts.push(y);const xs=[50,120,190,260,330,400,470,540,610,680];let lp='M',ap='M';cPts.forEach((v,i)=>{const c=i?'L':'';lp+=`${c}${xs[i]},${v} `;ap+=`${c}${xs[i]},${v} `});ap+='L680,148 L50,148 Z';document.getElementById('chartL').setAttribute('d',lp);document.getElementById('chartA').setAttribute('d',ap);document.getElementById('chartL').setAttribute('stroke',cl);const d=document.getElementById('chartD');d.setAttribute('cx',xs[9]);d.setAttribute('cy',cPts[9]);d.style.fill=cl;d.setAttribute('stroke',cl+'40')}
+
+let cAQI=72,cTDS=245;
+function sim(){cAQI+=Math.round(Math.random()*14-6);cAQI=Math.max(8,Math.min(cAQI,480));cTDS+=Math.round(Math.random()*18-7);cTDS=Math.max(40,Math.min(cTDS,1500));updateAll(cAQI,cTDS,24+Math.random()*11,45+Math.round(Math.random()*35),370+Math.round(Math.random()*140),0.8+Math.random()*5,8+Math.random()*35,2+Math.random()*18,15+Math.random()*50,8+Math.random()*55);lastT=Date.now()}
+
+function createAtmo(){const c=document.getElementById('atmo');for(let i=0;i<25;i++){const f=document.createElement('div');f.className='firefly';f.style.cssText=`left:${Math.random()*100}%;top:${25+Math.random()*65}%;--dx:${(Math.random()*70-35)}px;--dy:${(-80-Math.random()*180)}px;animation-duration:${6+Math.random()*10}s;animation-delay:${Math.random()*12}s;width:${2+Math.random()*2}px;height:${2+Math.random()*2}px`;c.appendChild(f)}const leaves=['🍃','🌿','🍂','☘️'];for(let i=0;i<8;i++){const l=document.createElement('div');l.className='leaf-p';l.textContent=leaves[Math.floor(Math.random()*leaves.length)];l.style.cssText=`left:${Math.random()*100}%;font-size:${10+Math.random()*10}px;animation-duration:${15+Math.random()*18}s;animation-delay:${Math.random()*15}s`;c.appendChild(l)}}
+
+function animC(el,t,s=''){let c=0;const inc=t/60;const ti=setInterval(()=>{c+=inc;if(c>=t){el.textContent=Math.floor(t).toLocaleString()+s;clearInterval(ti)}else el.textContent=Math.floor(c).toLocaleString()+s},25)}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000)}
+
+let lastT=Date.now();
+setInterval(()=>document.getElementById('lastUp').textContent=Math.round((Date.now()-lastT)/1000)+'s ago',1000);
+
+window.addEventListener('scroll',()=>{document.getElementById('header').classList.toggle('scrolled',scrollY>50);document.getElementById('btt').classList.toggle('visible',scrollY>500)});
+
+const ham=document.getElementById('hamburger'),mm=document.getElementById('mm'),ov=document.getElementById('overlay');
+ham.addEventListener('click',()=>{ham.classList.toggle('active');mm.classList.toggle('active');ov.classList.toggle('active')});
+ov.addEventListener('click',()=>{ham.classList.remove('active');mm.classList.remove('active');ov.classList.remove('active')});
+document.querySelectorAll('.mobile-menu a,.mobile-menu a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('active');mm.classList.remove('active');ov.classList.remove('active')}));
+
+const revObs=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('active')}),{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+const cObs=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting){animC(en.target,parseInt(en.target.dataset.target));cObs.unobserve(en.target)}}),{threshold:.5});
+document.querySelectorAll('.counter').forEach(el=>cObs.observe(el));
+document.querySelectorAll('.time-btns button').forEach(b=>b.addEventListener('click',function(){this.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));this.classList.add('active')}));
+
+window.addEventListener('load',()=>setTimeout(()=>document.getElementById('loader').classList.add('hidden'),1800));
+document.addEventListener('DOMContentLoaded',()=>{
+    createAtmo();updateAll(72,245,28.5,65,412,2.3,18.5,8.2,35.1,24.8);
+    setTimeout(()=>{animC(document.getElementById('hc1'),100,'+');animC(document.getElementById('hc2'),99,'%');animC(document.getElementById('hc3'),6)},2000);
+    setInterval(sim,5000);
+    setInterval(()=>{document.getElementById('ds_w').textContent=(-32-Math.round(Math.random()*18))+' dBm';document.getElementById('ds_m').textContent=(58+Math.round(Math.random()*22))+'%';document.getElementById('ds_r').textContent=(1.2+Math.random()*2.5).toFixed(1)+' KB/s'},8000);
+});
+</script>
+</body>
+</html>
